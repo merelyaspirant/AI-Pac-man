@@ -676,7 +676,7 @@ if __name__ == '__main__':
 
     > python pacman.py --help
     """
-    args = readCommand( sys.argv[1:] ) # Get game components based on input
+    args = readCommand( sys.argv[1:] ) # Get game components based on input, Also create pacman, ghosts etc objects and passes them as args
     runGames( **args )
 
     # import cProfile
