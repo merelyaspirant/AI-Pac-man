@@ -74,38 +74,87 @@ def tinyMazeSearch(problem):
 
 class Node:
 
-	def __init__(self, state, parent,cost,last_action):
+	def __init__(self, state, parent,cost,last_action, priority):
 		self.state = state
 		self.parent = parent
 		self.cost = cost
-		self.last_action = action
+		self.last_action = last_action
+		self.priority = priority
 
-def search_actions(problem, alg):
+def give_actions(N):
+	
+	act = []
+	while N.last_action is not None:
+		act.insert(0, N.last_action)
+		N = N.parent
+#	print "action list is ", act
+	return act
+
+def search_actions(problem, alg, heur=None):
+	priority = 0
+	inc_priority = 0
 	if alg is 'dfs':
-		start = state = proble.getStartState()
-		pri_counter = 0
-		cost_counter = 0
-		from sets import Set
-		
-		explored = Set()
+		inc_priority = -1
+	elif alg is 'bfs':
+		inc_priority = 1
 
-		que = PriorityQueue()
-		start_node = Node(start, None, 0, None)
-		que.update(start_node,  pri_counter)
-		while true:
-			if que.isEmpty():
-				return NULL
-			else:
-				state_expl = que.pop()
-				if state_expl not in explored:
-					if problem.isGoalState(state_expl.state)
-						return give_actions(state_expl)
 
-						
+#	if type(problem).__name__ is 'CornersProblem':
+	if True:
+		actlist = []
 
-				explored.add(state_expl)
-				
+	start = problem.getStartState()
+	print problem.getStartState()
+	explored = dict()
+
+	que = util.PriorityQueue()
+	start_node = Node(start, None, 0, None, priority)
+	que.update(start_node,  start_node.priority)
+	"""
+	actlist = ['North', 'East', 'East', 'North', 'West', 'West', 'West', 'West', 'West', 'West', 'South', 'South', 'South', 'South', 'East', 'East', 'South', 'South', 'West', 'West', 'West', 'South', 'South', 'East', 'East', 'East','North', 'East', 'East', 'North', 'West', 'West', 'West', 'West', 'West', 'West', 'South', 'South', 'South', 'South', 'East', 'East', 'South', 'South', 'West', 'West', 'West', 'South', 'South', 'East', 'East', 'East']
+
+	return actlist
+	"""
+	while True:
+		if que.isEmpty():
+			return None
+		else:
+			state_expl = que.pop()
+#			print "state popped \n", state_expl.state
+			if explored.has_key(state_expl.state):
+				continue
+			if True:
+#			if type(problem).__name__ is 'CornersProblem':
+#				print "corner problem"
+				res = problem.isGoalState(state_expl.state)
+				if res is 4:
+					actlist.extend(give_actions(state_expl))
+					print actlist
+					return actlist
+				elif res is 1:
+					actlist.extend(give_actions(state_expl))
+					explored.clear()
+					
+			elif problem.isGoalState(state_expl.state):
+				return give_actions(state_expl)
 			
+			if alg is not 'ucs':
+				priority = state_expl.priority + inc_priority
+			for child, act, cost in problem.getSuccessors(state_expl.state):
+				if not explored.has_key(child):
+
+					n = Node(child, state_expl, cost, act, priority)
+					if alg is 'ucs':
+						priority = problem.getCostOfActions(give_actions(n))
+						n.priority = priority;
+					elif alg is 'astar':
+						priority = problem.getCostOfActions(give_actions(n)) + heur(child, problem)
+						n.priority = priority;
+					
+					que.update(n, n.priority)
+
+			explored[state_expl.state] = state_expl
+	
 
 def depthFirstSearch(problem):
     """
@@ -126,18 +175,22 @@ def depthFirstSearch(problem):
  
 #    util.raiseNotDefined()
    
-    return search_actions(problem, alg)
+    return search_actions(problem, 'dfs')
 	          	
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+#    util.raiseNotDefined()
+
+    return search_actions(problem, 'bfs')
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+#    util.raiseNotDefined()
+
+    return search_actions(problem, 'ucs')
 
 def nullHeuristic(state, problem=None):
     """
@@ -149,7 +202,9 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+#    util.raiseNotDefined()
+
+    return search_actions(problem, 'astar', heuristic)
 
 
 # Abbreviations
