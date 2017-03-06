@@ -282,7 +282,7 @@ class CornersProblem(search.SearchProblem):
         self.startingPosition = startingGameState.getPacmanPosition()
         top, right = self.walls.height-2, self.walls.width-2
         self.corners = ((1,1), (1,top), (right, 1), (right, top))
-        print self.corners
+#        print self.corners
         for corner in self.corners:
             if not startingGameState.hasFood(*corner):
                 print 'Warning: no food in corner ' + str(corner)
@@ -308,11 +308,10 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
 #        util.raiseNotDefined()
         for index, s in enumerate(self.corners):
-#            print index,s,state
             if cmp(s, state) is 0 and self.corners_covered[index] is 0:
-                print "find corner at index",state, index
+#                print "find corner at index",state, index
                 self.corners_covered[index] = 1
-                print sum(self.corners_covered)
+#                print sum(self.corners_covered)
                 if sum(self.corners_covered) is 4:
                     return 4
                 else:

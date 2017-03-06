@@ -84,10 +84,11 @@ class Node:
 def give_actions(N):
 	
 	act = []
+
+#	print N.state
 	while N.last_action is not None:
 		act.insert(0, N.last_action)
 		N = N.parent
-#	print "action list is ", act
 	return act
 
 def search_actions(problem, alg, heur=None):
@@ -99,42 +100,35 @@ def search_actions(problem, alg, heur=None):
 		inc_priority = 1
 
 
-#	if type(problem).__name__ is 'CornersProblem':
-	if True:
+	if problem.__class__.__name__ is 'CornersProblem':
 		actlist = []
 
 	start = problem.getStartState()
-	print problem.getStartState()
 	explored = dict()
 
 	que = util.PriorityQueue()
 	start_node = Node(start, None, 0, None, priority)
 	que.update(start_node,  start_node.priority)
-	"""
-	actlist = ['North', 'East', 'East', 'North', 'West', 'West', 'West', 'West', 'West', 'West', 'South', 'South', 'South', 'South', 'East', 'East', 'South', 'South', 'West', 'West', 'West', 'South', 'South', 'East', 'East', 'East','North', 'East', 'East', 'North', 'West', 'West', 'West', 'West', 'West', 'West', 'South', 'South', 'South', 'South', 'East', 'East', 'South', 'South', 'West', 'West', 'West', 'South', 'South', 'East', 'East', 'East']
 
-	return actlist
-	"""
 	while True:
 		if que.isEmpty():
 			return None
 		else:
 			state_expl = que.pop()
-#			print "state popped \n", state_expl.state
 			if explored.has_key(state_expl.state):
 				continue
-			if True:
-#			if type(problem).__name__ is 'CornersProblem':
-#				print "corner problem"
+			if problem.__class__.__name__ is 'CornersProblem':
 				res = problem.isGoalState(state_expl.state)
 				if res is 4:
-					actlist.extend(give_actions(state_expl))
-					print actlist
+					actlist = give_actions(state_expl)
+#					print actlist
 					return actlist
+
 				elif res is 1:
 					actlist.extend(give_actions(state_expl))
 					explored.clear()
-					
+					que = util.PriorityQueue()
+
 			elif problem.isGoalState(state_expl.state):
 				return give_actions(state_expl)
 			
