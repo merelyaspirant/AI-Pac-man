@@ -308,15 +308,9 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
 #        util.raiseNotDefined()
         for index, s in enumerate(self.corners):
-            if cmp(s, state) is 0 and self.corners_covered[index] is 0:
-#                print "find corner at index",state, index
-                self.corners_covered[index] = 1
-#                print sum(self.corners_covered)
-                if sum(self.corners_covered) is 4:
-                    return 4
-                else:
-                    return 1
-        return 0
+            if cmp(s, state) is 0 :
+				return index
+        return -1
 
 
     def getSuccessors(self, state):

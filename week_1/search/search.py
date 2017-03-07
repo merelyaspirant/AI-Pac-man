@@ -74,80 +74,125 @@ def tinyMazeSearch(problem):
 
 class Node:
 
-	def __init__(self, state, parent,cost,last_action, priority):
+	def __init__(self, state, parent,cost,last_action, priority, goals_reached = [0,0,0,0], explored = None):
 		self.state = state
 		self.parent = parent
 		self.cost = cost
 		self.last_action = last_action
 		self.priority = priority
 
+		if explored is not None:
+			self.explored = explored
+		else:
+			self.explored = dict()
+
+		self.goals_reached = [0,0,0,0]
+		for index, i in enumerate(goals_reached):
+			self.goals_reached[index] = i
+		self.actlist = []
+
 def give_actions(N):
 	
 	act = []
-
-#	print N.state
 	while N.last_action is not None:
 		act.insert(0, N.last_action)
 		N = N.parent
 	return act
 
-def search_actions(problem, alg, heur=None):
+def search_actions_corners_problem(problem, alg, heur=None):
+
 	priority = 0
 	inc_priority = 0
+
 	if alg is 'dfs':
 		inc_priority = -1
 	elif alg is 'bfs':
 		inc_priority = 1
 
-
-	if problem.__class__.__name__ is 'CornersProblem':
-		actlist = []
+	que = util.PriorityQueue()
 
 	start = problem.getStartState()
-	explored = dict()
-
-	que = util.PriorityQueue()
 	start_node = Node(start, None, 0, None, priority)
 	que.update(start_node,  start_node.priority)
 
 	while True:
 		if que.isEmpty():
 			return None
-		else:
-			state_expl = que.pop()
-			if explored.has_key(state_expl.state):
-				continue
-			if problem.__class__.__name__ is 'CornersProblem':
-				res = problem.isGoalState(state_expl.state)
-				if res is 4:
-					actlist = give_actions(state_expl)
-#					print actlist
-					return actlist
-
-				elif res is 1:
-					actlist.extend(give_actions(state_expl))
-					explored.clear()
-					que = util.PriorityQueue()
-
-			elif problem.isGoalState(state_expl.state):
-				return give_actions(state_expl)
 			
-			if alg is not 'ucs':
-				priority = state_expl.priority + inc_priority
-			for child, act, cost in problem.getSuccessors(state_expl.state):
-				if not explored.has_key(child):
+		state_expl = que.pop()
+		if state_expl.explored.has_key(state_expl.state):
+			continue
 
-					n = Node(child, state_expl, cost, act, priority)
-					if alg is 'ucs':
-						priority = problem.getCostOfActions(give_actions(n))
-						n.priority = priority;
-					elif alg is 'astar':
-						priority = problem.getCostOfActions(give_actions(n)) + heur(child, problem)
-						n.priority = priority;
-					
-					que.update(n, n.priority)
+		res = problem.isGoalState(state_expl.state)
 
-			explored[state_expl.state] = state_expl
+		if res is not -1:
+			state_expl.goals_reached[res] = 1
+
+			if sum(state_expl.goals_reached) is 4:
+				state_expl.actlist = give_actions(state_expl)
+				return state_expl.actlist
+			else:
+				state_expl.explored = dict()
+		
+		if alg is not 'ucs':
+			priority = state_expl.priority + inc_priority
+
+		for child, act, cost in problem.getSuccessors(state_expl.state):
+			if not state_expl.explored.has_key(child):
+
+				n = Node(child, state_expl, cost, act, priority, state_expl.goals_reached, state_expl.explored)			
+				if alg is 'ucs':
+					n.priority = problem.getCostOfActions(give_actions(n))
+				elif alg is 'astar':
+					n.priority = problem.getCostOfActions(give_actions(n)) + heur(child, problem)
+
+				que.update(n, n.priority)
+		state_expl.explored[state_expl.state] = state_expl
+
+
+def search_actions(problem, alg, heur=None):
+
+	priority = 0
+	inc_priority = 0
+
+	if alg is 'dfs':
+		inc_priority = -1
+	elif alg is 'bfs':
+		inc_priority = 1
+
+	explored = dict()
+	que = util.PriorityQueue()
+
+	start = problem.getStartState()
+	start_node = Node(start, None, 0, None, priority)
+	que.update(start_node,  start_node.priority)
+
+	while True:
+		if que.isEmpty():
+			return None
+
+		state_expl = que.pop()
+	
+		if explored.has_key(state_expl.state):
+			continue
+
+		if problem.isGoalState(state_expl.state):
+			return give_actions(state_expl)
+			
+		if alg is not 'ucs':
+			priority = state_expl.priority + inc_priority
+
+		for child, act, cost in problem.getSuccessors(state_expl.state):
+			if not explored.has_key(child):
+
+				n = Node(child, state_expl, cost, act, priority, state_expl.goals_reached, explored)		
+				if alg is 'ucs':
+					n.priority = problem.getCostOfActions(give_actions(n))
+				elif alg is 'astar':
+					n.priority = problem.getCostOfActions(give_actions(n)) + heur(child, problem)
+
+				que.update(n, n.priority)
+		explored[state_expl.state] = state_expl
 	
 
 def depthFirstSearch(problem):
@@ -176,8 +221,10 @@ def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
 #    util.raiseNotDefined()
-
-    return search_actions(problem, 'bfs')
+    if problem.__class__.__name__ is 'CornersProblem':
+	    return search_actions_corners_problem(problem, 'bfs')
+    else:
+	    return search_actions(problem, 'bfs')
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
