@@ -146,7 +146,8 @@ def search_actions_corners_problem(problem, alg, heur=None):
 				elif alg is 'astar':
 					n.priority = problem.getCostOfActions(give_actions(n)) + heur(child, problem)
 
-				que.update(n, n.priority)
+				if not (n.priority > 9999):
+					que.update(n, n.priority)
 		state_expl.explored[state_expl.state] = state_expl
 
 
@@ -244,8 +245,11 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
 #    util.raiseNotDefined()
+    if problem.__class__.__name__ is 'CornersProblem':
+	    return search_actions_corners_problem(problem, 'astar', heuristic)
+    else:
+	    return search_actions(problem, 'astar', heuristic)
 
-    return search_actions(problem, 'astar', heuristic)
 
 
 # Abbreviations

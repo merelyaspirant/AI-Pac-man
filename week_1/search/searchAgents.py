@@ -279,6 +279,10 @@ class CornersProblem(search.SearchProblem):
         Stores the walls, pacman's starting position and corners.
         """
         self.walls = startingGameState.getWalls()
+        for x,w in enumerate(self.walls):
+            print x
+        print self.walls[0][0]
+#        print enumerate(self.walls)
         self.startingPosition = startingGameState.getPacmanPosition()
         top, right = self.walls.height-2, self.walls.width-2
         self.corners = ((1,1), (1,top), (right, 1), (right, top))
@@ -352,6 +356,39 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
+def manhattanHeuristic2(position, goal, info={}):
+    "The Manhattan distance heuristic for a PositionSearchProblem"
+    xy1 = position
+    xy2 = goal
+    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+
+def euclideanHeuristic2(position, goal, info={}):
+    "The Euclidean distance heuristic for a PositionSearchProblem"
+    xy1 = position
+    xy2 = goal
+    return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
+
+def crossing_wall(pos, cor, walls):
+
+	line_perpendicular = False
+	m =	(cor[0] - pos[0])
+	if m is not 0:
+		m =  (cor[1] - pos[1]) / m
+	else:
+		line_perpendicular = True
+
+		
+
+	for i in range(1,6):
+		for j in range(1,6):
+			if walls[i][j] is True:
+				if line_perpendicular:
+					if (i - pos[0]) is 0:
+						return True
+				else:
+					if ((j - pos[1]) - m*(i - pos[0])) is 0:
+						return True
+	return False
 
 def cornersHeuristic(state, problem):
     """
@@ -369,8 +406,14 @@ def cornersHeuristic(state, problem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    distance = []
+    position = state
+    for corner in corners:
+        if crossing_wall(position, corner, walls):
+	        distance.append(999999)
+        distance.append(manhattanHeuristic2(position, corner))
+	
+    return min(distance)
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
