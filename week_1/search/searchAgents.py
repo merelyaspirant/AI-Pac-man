@@ -279,14 +279,9 @@ class CornersProblem(search.SearchProblem):
         Stores the walls, pacman's starting position and corners.
         """
         self.walls = startingGameState.getWalls()
-        for x,w in enumerate(self.walls):
-            print x
-        print self.walls[0][0]
-#        print enumerate(self.walls)
         self.startingPosition = startingGameState.getPacmanPosition()
         top, right = self.walls.height-2, self.walls.width-2
         self.corners = ((1,1), (1,top), (right, 1), (right, top))
-#        print self.corners
         for corner in self.corners:
             if not startingGameState.hasFood(*corner):
                 print 'Warning: no food in corner ' + str(corner)
@@ -371,13 +366,19 @@ def euclideanHeuristic2(position, goal, info={}):
 def crossing_wall(pos, cor, walls):
 
 	line_perpendicular = False
+	
+	for i in range(0,2):
+		k = walls[i]
+		if k > pos[i] and k > cor[i]:
+			return False
+		elif k < pos[i] and k < cor[i]:
+			return False
+
 	m =	(cor[0] - pos[0])
 	if m is not 0:
 		m =  (cor[1] - pos[1]) / m
 	else:
 		line_perpendicular = True
-
-		
 
 	for i in range(1,6):
 		for j in range(1,6):
@@ -408,9 +409,15 @@ def cornersHeuristic(state, problem):
 
     distance = []
     position = state
-    for corner in corners:
-        if crossing_wall(position, corner, walls):
-	        distance.append(999999)
+    for index, corner in enumerate(corners):
+	"""
+	if wall lies between corner(goal) and positon, then return maximum cost 999999
+	check if corner(goal) is already visited by that node, if yes then max cost to that goal
+	so that it is at end of the priority Q
+	"""
+        if crossing_wall(position, corner, walls) or (problem.corners_covered[index] is 1):
+            distance.append(999999)
+            continue
         distance.append(manhattanHeuristic2(position, corner))
 	
     return min(distance)

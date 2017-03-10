@@ -144,10 +144,13 @@ def search_actions_corners_problem(problem, alg, heur=None):
 				if alg is 'ucs':
 					n.priority = problem.getCostOfActions(give_actions(n))
 				elif alg is 'astar':
+					for index, item in enumerate(n.goals_reached):
+						problem.corners_covered[index] = item
+				
 					n.priority = problem.getCostOfActions(give_actions(n)) + heur(child, problem)
+					problem.corners_covered[index] = [0,0,0,0]
 
-				if not (n.priority > 9999):
-					que.update(n, n.priority)
+				que.update(n, n.priority)
 		state_expl.explored[state_expl.state] = state_expl
 
 
