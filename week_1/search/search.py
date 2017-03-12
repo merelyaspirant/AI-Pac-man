@@ -151,6 +151,7 @@ def search_actions_corners_problem(problem, alg, heur=None):
 					problem.corners_covered[index] = [0,0,0,0]
 
 				que.update(n, n.priority)
+
 		state_expl.explored[state_expl.state] = state_expl
 
 

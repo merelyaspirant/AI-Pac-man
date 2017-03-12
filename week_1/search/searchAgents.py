@@ -409,18 +409,62 @@ def cornersHeuristic(state, problem):
 
     distance = []
     position = state
-    for index, corner in enumerate(corners):
-	"""
+    not_visited = []
+    """
+    Not used heuristic :1
 	if wall lies between corner(goal) and positon, then return maximum cost 999999
 	check if corner(goal) is already visited by that node, if yes then max cost to that goal
-	so that it is at end of the priority Q
-	"""
-        if crossing_wall(position, corner, walls) or (problem.corners_covered[index] is 1):
+	so that it is at end of the priority Q.
+        if crossing_wall(position, corner, walls):
             distance.append(999999)
             continue
-        distance.append(manhattanHeuristic2(position, corner))
-	
-    return min(distance)
+
+    *Earlier used this heuristic but found that it doesn't lessen the nodes expansion
+    """
+    """
+    Not used heuristc :2
+    Following heuristic considers cost to all unvisited goals sum , starting from nearest goal, from there
+    go to next goal cost..,
+    This gives very less nodes expansion but is inconsistent and not accepted by autograder
+
+    while len(not_visited) > 0:
+        distance, corner = min([(manhattanHeuristic2(position,corner), corner) for corner in not_visited])
+        cost += distance
+        position = corner
+        not_visited.remove(corner)
+
+    position = state
+    """
+
+    cost = 0
+    """
+    Heuristic 1
+    worth of this state based on how near it is from unvisited goals,
+    distance from nearest goal
+    """
+
+    for index,corner in enumerate(corners):
+        if not problem.corners_covered[index] is 1:
+            distance.append(manhattanHeuristic2(position, corner))
+            not_visited.append(corner)
+
+    cost = min(distance)
+
+
+    """
+    Heuristic 2
+    Give more cost to state which is nearer to visited goals, means we
+    want to be as far from visited goals,
+    because we dont want to go that side now
+    """
+
+    for index,corner in enumerate(corners):
+        if problem.corners_covered[index] is 1:
+            m1 = 5 - abs(corner[0] - position[0])
+            m2 = 5 - abs(corner[1] - position[1])
+            cost+= m1+m2
+
+    return cost
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
