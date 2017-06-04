@@ -43,6 +43,7 @@ class MultiagentTreeState(object):
         self.state = state
 
     def generateSuccessor(self, agentIndex, action):
+        # type: (object, object) -> object
         if VERBOSE:
             print "generateSuccessor(%s, %s, %s) -> %s" % (self.state, agentIndex, action, self.problem.stateToSuccessorMap[self.state][action])
         successor = self.problem.stateToSuccessorMap[self.state][action]

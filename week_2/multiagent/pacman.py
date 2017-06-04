@@ -92,6 +92,7 @@ class GameState:
             return GhostRules.getLegalActions( self, agentIndex )
 
     def generateSuccessor( self, agentIndex, action):
+        # type: (object, object) -> object
         """
         Returns the successor state after the specified agent takes the action.
         """
