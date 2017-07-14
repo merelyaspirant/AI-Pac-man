@@ -232,7 +232,8 @@ class ApproximateQAgent(PacmanQAgent):
 #        util.raiseNotDefined()
         
         features = self.featExtractor.getFeatures(state, action)
-        diff = (reward + self.discount * self.getValue(nextState)) - self.getQValue(state, action)
+        sample =  reward + self.discount * self.getValue(nextState)
+        diff = sample - self.getQValue(state, action)
 
         for key in features:
             self.weights[key] = self.weights.__getitem__(key) + self.alpha * diff * features.__getitem__(key)
